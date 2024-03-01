@@ -1,0 +1,47 @@
+# review questions 11.5.1
+"""for i in range(10):
+    print("hello")"""
+# review question 2
+"""for i in range(5):
+    print("hello")
+print("There!")"""
+# Review question 3
+"""for i in range(5):
+    print("hello")
+    print("there")"""
+# Review question 4
+"""for i in range(10):
+    print(i)"""
+# Review question 5
+"""for i in range(1,11):
+    print(i)
+for i in range(10):
+    print(i+1)"""
+# review question 6
+"""for i in range(2,12,2):
+    print(i)
+for i in range(5):
+    print((i + 1) * 2)"""
+# Review question 7
+"""for i in range(10, 0, -1):
+    print(i)
+for i in range(3):
+    print("a")
+    for j in range(3):
+        print("b")
+a = 0
+for i in range(10):
+    a = a + 1
+print(a)
+total = 0
+for i in range(1, 101):
+    total = total + i
+i=0
+while i < 10:
+    print (i)
+    i=i+1"""
+i = 1
+while i <= 2**32:
+    print(i)
+    i *= 2
+
