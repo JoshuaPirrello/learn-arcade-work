@@ -1,7 +1,7 @@
 import arcade
 
 
-class GameWindow(arcade.Window):
+class MyGameWindow(arcade.Window):
 
 
     def __init__(self, width, height, title):
@@ -68,5 +68,5 @@ class GameWindow(arcade.Window):
             self.down = False
 
 
-GameWindow(1280, 720, "Basic Bounce")
+MyGameWindow(1280, 720, "Basic Bounce")
 arcade.run()
