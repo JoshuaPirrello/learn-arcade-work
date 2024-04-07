@@ -3,7 +3,6 @@ import arcade
 
 class MyGameWindow(arcade.Window):
 
-
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
         self.set_location(400, 200)
@@ -28,7 +27,6 @@ class MyGameWindow(arcade.Window):
         arcade.draw_circle_filled(self.c_x, self.c_y, 50,  arcade.color.PURPLE_PIZZAZZ, 20)
         arcade.draw_circle_outline(self.player_x, self.player_y, 50, arcade.color.GOLD, 2, 20)
 
-
     def update(self, delta_time):
         self.c_x += self.x_speed * delta_time
         self.c_y += self.y_speed * delta_time
@@ -43,9 +41,9 @@ class MyGameWindow(arcade.Window):
         if self.left:
             self.player_x -= self.player_speed * delta_time
         if self.up:
-            self.player_x += self.player_speed * delta_time
+            self.player_y += self.player_speed * delta_time
         if self.down:
-            self.player_x -= self.player_speed * delta_time
+            self.player_y -= self.player_speed * delta_time
 
     def on_key_press(self, symbol, modifiers):
         if symbol == arcade.key.RIGHT:
