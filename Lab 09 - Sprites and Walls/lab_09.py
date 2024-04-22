@@ -60,7 +60,7 @@ class MyGame(arcade.Window):
         # Sprite lists
         self.player_list = arcade.SpriteList()
         self.wall_list = arcade.SpriteList()
-        self.coin_list = arcade.SpriteList(use_spatial_hash=True)
+        self.coin_list = arcade.SpriteList()
 
         self.score = 0
 
@@ -70,6 +70,19 @@ class MyGame(arcade.Window):
         self.player_sprite.center_x = 256
         self.player_sprite.center_y = 512
         self.player_list.append(self.player_sprite)
+
+        for x in range(100, 650, 210):
+            for y in range(10, 600, 64):
+                # Randomly skip a box so the player can find a way through
+                wall = arcade.Sprite(":resources:images/tiles/brickGrey.png")
+                wall.center_x = x
+                wall.center_y = y
+                self.wall_list.append(wall)
+        for x in range(200, 880, 200):
+            wall = arcade.Sprite(":resources:images/tiles/brickGrey.png")
+            wall.center_x = x
+            wall.center_y = 350
+            self.wall_list.append(wall)
 
         for i in range(COIN_COUNT):
             coin = arcade.Sprite(":resources:images/items/coinGold_ll.png", scale=0.4)
@@ -90,28 +103,12 @@ class MyGame(arcade.Window):
                 if len(wall_hit_list) == 0 and len(coin_hit_list) == 0:
                     # It is!
                     coin_placed_successfully = True
-
-            coin.center_x = random.randrange(DEFAULT_SCREEN_WIDTH)
-            coin.center_y = random.randrange(DEFAULT_SCREEN_HEIGHT)
+#            coin.center_x = random.randrange(DEFAULT_SCREEN_WIDTH)
+#            coin.center_y = random.randrange(DEFAULT_SCREEN_HEIGHT)
             self.coin_list.append(coin)
 
         # -- Set up several columns of walls
-
-        for x in range(100, 650, 210):
-            for y in range(10, 600, 64):
-                # Randomly skip a box so the player can find a way through
-                    wall = arcade.Sprite(":resources:images/tiles/brickGrey.png")
-                    wall.center_x = x
-                    wall.center_y = y
-                    self.wall_list.append(wall)
-        for x in range(200, 880, 200):
-            wall = arcade.Sprite(":resources:images/tiles/brickGrey.png")
-            wall.center_x = x
-            wall.center_y = 350
-            self.wall_list.append(wall)
-
         self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite, self.wall_list)
-
         # Set the background color
         arcade.set_background_color(arcade.color.LAVA)
 
