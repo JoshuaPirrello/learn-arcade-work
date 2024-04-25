@@ -1,6 +1,3 @@
-import random
-import arcade
-
 
 # --- Constants ---
 SPRITE_SCALING_PLAYER = 0.5
@@ -38,12 +35,10 @@ class MyGame(arcade.Window):
         arcade.set_background_color(arcade.color.BLACK)
 
     def setup(self):
-
-
-
-        self.player_list = arcade.SpriteList()
-        self.coin_list = arcade.SpriteList(use_spatial_hash=True)
-        self.rock_list = arcade.SpriteList(use_spatial_hash=True)
+        if self.Game_Over is False :
+            self.player_list = arcade.SpriteList()
+            self.coin_list = arcade.SpriteList(use_spatial_hash=True)
+            self.rock_list = arcade.SpriteList(use_spatial_hash=True)
 
         # Score
         self.score = 0
@@ -59,7 +54,7 @@ class MyGame(arcade.Window):
         # Create the coins
         for i in range(COIN_COUNT):
 
-            coin = arcade.Sprite("coin_01.png", SPRITE_SCALING_COIN)
+            coin = arcade.Sprite(":resources:images/items/coinGold_ll.png", SPRITE_SCALING_COIN)
             coin.center_x = random.randrange(SCREEN_WIDTH)
             coin.center_y = random.randrange(SCREEN_HEIGHT)
             self.coin_list.append(coin)
@@ -83,7 +78,7 @@ class MyGame(arcade.Window):
         output = f"Score: {self.score}"
         arcade.draw_text(text=output, start_x=10, start_y=20,
                          color=arcade.color.WHITE, font_size=14)
-        if self.Game_Over == True:
+        if self.Game_Over is True:
             arcade.draw_text("GAME OVER", start_x=250, start_y=400, color= arcade.color.RADICAL_RED,font_size = 30)
 
     def on_mouse_motion(self, x, y, dx, dy):
@@ -95,11 +90,10 @@ class MyGame(arcade.Window):
 
     def on_update(self, delta_time):
 
+        if self.Game_Over is False:
 
-        if self.Game_Over == False:
+            coins_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.coin_list)
 
-            coins_hit_list = arcade.check_for_collision_with_list(self.player_sprite,
-                                                              self.coin_list)
         for coin in coins_hit_list:
             coin.remove_from_sprite_lists()
             self.score += 1
@@ -107,8 +101,9 @@ class MyGame(arcade.Window):
 
         collision = arcade.check_for_collision_with_list(self.player_sprite, self.rock_list)
         if len(collision) > 0:
+            self.Game_Over = True
             arcade.play_sound(self.horrible_death_sound)
-            self.Game_Over == True
+
 
 
 def main():
