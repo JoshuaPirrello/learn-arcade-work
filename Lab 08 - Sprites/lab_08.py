@@ -1,14 +1,51 @@
+import random
+import arcade
+
 
 # --- Constants ---
 SPRITE_SCALING_PLAYER = 0.5
 SPRITE_SCALING_COIN = .25
 SPRITE_SCALING_STONE = .15
 COIN_COUNT = 50
-STONE_COUNT = 60
+STONE_COUNT = 75
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 SCREEN_TITLE = "Sprite Collect Coins Example"
+
+
+class Coin(arcade.Sprite):
+    def reset_pos(self):
+        # Reset the coin to a random spot above the screen
+        self.center_y = random.randrange(SCREEN_HEIGHT + 20,
+                                         SCREEN_HEIGHT + 100)
+        self.center_x = random.randrange(SCREEN_WIDTH)
+
+    def update(self):
+        # Move the coin
+        self.center_y -= 1
+
+        # See if the coin has fallen off the bottom of the screen.
+        # If so, reset it.
+        if self.top < 0:
+            self.reset_pos()
+
+class Asteroid(arcade.Sprite):
+    def reset_pos(self):
+        # Reset the coin to a random spot above the screen
+        self.center_x = random.randrange(SCREEN_HEIGHT + 20,
+                                         SCREEN_HEIGHT + 100)
+        self.center_x = random.randrange(SCREEN_WIDTH)
+
+    def update(self):
+        # Move the coin
+        self.center_x -= 1
+
+        # See if the coin has fallen off the bottom of the screen.
+        # If so, reset it.
+        if self.left < 0:
+            self.reset_pos()
+
 
 class MyGame(arcade.Window):
     def __init__(self):
@@ -35,7 +72,7 @@ class MyGame(arcade.Window):
         arcade.set_background_color(arcade.color.BLACK)
 
     def setup(self):
-        if self.Game_Over is False :
+        if self.Game_Over is False:
             self.player_list = arcade.SpriteList()
             self.coin_list = arcade.SpriteList(use_spatial_hash=True)
             self.rock_list = arcade.SpriteList(use_spatial_hash=True)
@@ -54,14 +91,14 @@ class MyGame(arcade.Window):
         # Create the coins
         for i in range(COIN_COUNT):
 
-            coin = arcade.Sprite(":resources:images/items/coinGold_ll.png", SPRITE_SCALING_COIN)
+            coin = Coin(":resources:images/items/coinGold_ll.png", SPRITE_SCALING_COIN)
             coin.center_x = random.randrange(SCREEN_WIDTH)
             coin.center_y = random.randrange(SCREEN_HEIGHT)
             self.coin_list.append(coin)
 
         for x in range(0-8, 14):
 
-            stone = arcade.Sprite(":resources:images/space_shooter/meteorGrey_big2.png", SPRITE_SCALING_STONE)
+            stone = Asteroid(":resources:images/space_shooter/meteorGrey_big2.png", SPRITE_SCALING_STONE)
 
             stone.center_x = random.randrange(SCREEN_WIDTH)
             stone.center_y = random.randrange(SCREEN_HEIGHT)
@@ -79,7 +116,7 @@ class MyGame(arcade.Window):
         arcade.draw_text(text=output, start_x=10, start_y=20,
                          color=arcade.color.WHITE, font_size=14)
         if self.Game_Over is True:
-            arcade.draw_text("GAME OVER", start_x=250, start_y=400, color= arcade.color.RADICAL_RED,font_size = 30)
+            arcade.draw_text("GAME OVER", start_x=250, start_y=400, color=arcade.color.RADICAL_RED, font_size=30)
 
     def on_mouse_motion(self, x, y, dx, dy):
         """ Handle Mouse Motion """
@@ -87,6 +124,30 @@ class MyGame(arcade.Window):
         # Move the center of the player sprite to match the mouse x, y
         self.player_sprite.center_x = x
         self.player_sprite.center_y = y
+
+    def update(self, delta_time):
+        """ Movement and game logic """
+
+        # Call update on all sprites (The sprites don't do much in this
+        # example though.)
+        self.coin_list.update()
+
+        # Generate a list of all sprites that collided with the player.
+        hit_list = arcade.check_for_collision_with_list(self.player_sprite,
+                                                        self.coin_list)
+
+        # Loop through each colliding sprite, remove it, and add to the score.
+        for coin in hit_list:
+            coin.reset_pos()
+            self.score += 1
+
+        self.rock_list.update()
+
+
+        stone_hit_list = arcade.check_for_collision_with_list(self.player_sprite,
+                                                        self.rock_list)
+
+
 
     def on_update(self, delta_time):
 
