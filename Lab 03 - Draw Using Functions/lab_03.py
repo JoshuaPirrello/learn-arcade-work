@@ -1,32 +1,38 @@
 import arcade
-height = 600
-width = 600
 
-def snowman(x, y, size=1):
-    arcade.draw_circle_filled(x,y, 90*size, arcade.color.WHITE)
-    arcade.draw_circle_filled(x, y+70*size, 60*size, arcade.color.WHITE)
-    arcade.draw_circle_filled(x, y+130*size, 40*size, arcade.color.WHITE)
-    arcade.draw_point(x+20*size, y+140*size, arcade.color.BLACK, 5*size)
-    arcade.draw_point(x-20*size, y+140*size, arcade.color.BLACK, 5*size)
-    arcade.draw_line(x-20*size, y+130*size, x+20*size, y+130*size, arcade.color.BLACK, 5*size)
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
 
 
-arcade.open_window(width, height, "My project")
+def draw_grass():
+    arcade.draw_lrtb_rectangle_filled(0, SCREEN_WIDTH, SCREEN_HEIGHT / 3, 0, arcade.color.AIR_SUPERIORITY_BLUE)
 
-arcade.set_background_color(arcade.color.AIR_SUPERIORITY_BLUE)
+def draw_moon():
+    arcade.draw_circle_filled(50, SCREEN_HEIGHT - 50, 75, arcade.color.SUNSET)
+    arcade.draw_circle_outline(50, SCREEN_HEIGHT - 50, 75, arcade.color.BLACK_BEAN)
+def draw_snowman(x,y):
+    arcade.draw_circle_filled(300 + x, 200 + y, 60, arcade.color.WHITE)
+    arcade.draw_circle_filled(300 + x, 280 + y, 50, arcade.color.WHITE)
+    arcade.draw_circle_filled(300 + x, 340 + y, 40, arcade.color.WHITE)
+    arcade.draw_circle_filled(285 + x, 350 + y, 5, arcade.color.BLACK)
+    arcade.draw_circle_filled(315 + x, 350 + y, 5, arcade.color.BLACK)
+    arcade.draw_circle_filled(300 + x, 340 +y, radius=3, color=arcade.color.ORANGE_RED)
 
-arcade.start_render()
 
-snowman(width/6, height/4, 0.05)
-snowman(width/1, height/4, 1.1)
-snowman(width/3, height/1, 1.2 )
+def main():
+    arcade.open_window(SCREEN_WIDTH, SCREEN_HEIGHT, "Drawing with Functions")
+    arcade.set_background_color(arcade.color.DARK_BLUE)
+    arcade.start_render()
+    draw_moon()
+    draw_grass()
+    draw_snowman(1, 1)
+    draw_snowman(150, -10)
+    draw_snowman( -100, -30)
 
-arcade.draw_circle_filled(width/2, height/3, 90, arcade.color.WHITE)
-arcade.draw_circle_filled(width/2, height/2, 60, arcade.color.WHITE)
-arcade.draw_circle_filled(width/2, (height/3)*1.8, 40, arcade.color.WHITE)
-arcade.draw_point(width/2+20, (height/3)*1.8+10, arcade.color.BLACK,  5)
-arcade.draw_point(width/2-20, (height/3)*1.8+10, arcade.color.BLACK, 5)
-arcade.draw_line(width/2-20, (height/3)*1.8, width/2+20, (height/3)*1.8, arcade.color.BLACK, 5)
 
-arcade.finish_render()
-arcade.run()
+    arcade.finish_render()
+    arcade.run()
+
+
+# Call the main function to get the program started.
+main()
