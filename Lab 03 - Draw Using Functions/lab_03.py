@@ -5,8 +5,11 @@ SCREEN_HEIGHT = 600
 
 
 def draw_grass():
-    arcade.draw_lrtb_rectangle_filled(0, SCREEN_WIDTH, SCREEN_HEIGHT / 3, 0, arcade.color.AIR_SUPERIORITY_BLUE)
+    arcade.draw_lrtb_rectangle_filled(0, SCREEN_WIDTH, SCREEN_HEIGHT / 3, 0, arcade.color.DARK_BLUE)
 
+def draw_bird(x, y):
+    arcade.draw_arc_outline(x, y, 40, 40, arcade.color.BLACK_BEAN, 0, 90)
+    arcade.draw_arc_outline(x + 40, y, 40, 40, arcade.color.BLACK_BEAN, 90, 180)
 def draw_moon():
     arcade.draw_circle_filled(50, SCREEN_HEIGHT - 50, 75, arcade.color.SUNSET)
     arcade.draw_circle_outline(50, SCREEN_HEIGHT - 50, 75, arcade.color.BLACK_BEAN)
@@ -21,13 +24,15 @@ def draw_snowman(x,y):
 
 def main():
     arcade.open_window(SCREEN_WIDTH, SCREEN_HEIGHT, "Drawing with Functions")
-    arcade.set_background_color(arcade.color.DARK_BLUE)
+    arcade.set_background_color(arcade.color.LIGHT_SKY_BLUE)
     arcade.start_render()
     draw_moon()
     draw_grass()
     draw_snowman(1, 1)
     draw_snowman(150, -10)
     draw_snowman( -100, -30)
+    draw_bird(200, 400)
+    draw_bird(400,400)
 
 
     arcade.finish_render()
