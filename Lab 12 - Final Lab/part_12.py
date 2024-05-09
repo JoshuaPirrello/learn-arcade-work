@@ -1,4 +1,23 @@
 import arcade
+import random
+
+SCREEN_HEIGHT = 800
+SCREEN_WIDTH = 600
+HOP_DISTANCE = 50
+FLY_COUNT = 2
+
+class Movers(arcade.Sprite):
+    def reset_pos(self):
+        self.center_y = SCREEN_HEIGHT // 2 - 10  # Adjusted initial position
+        self.center_x = -self.width / 2  # Start from left side of the screen
+
+    def move(self):
+        self.center_x += 10  # Move from left to right
+        if self.right > SCREEN_WIDTH + self.width:  # Check if bigrig goes off-screen
+            self.reset_pos()
+
+    def collide_with_sprite(self, sprite):
+        return self.collides_with_sprite(sprite)
 
 
 class GameWindow(arcade.Window):
@@ -8,13 +27,17 @@ class GameWindow(arcade.Window):
         self.set_location(400, 200)
 
         arcade.set_background_color(arcade.color.BLACK)
-        self.score = 0
-        self.frogger_x = 100
-        self.frogger_y = 100
-        self.vehicle_x = 150
-        self.vehicle_y = 150
 
-        self.frogger_default_sprite = arcade.Sprite("Frogger/frogger_default.png", center_x= 300, center_y= 50)
+        self.frogger_list = arcade.SpriteList()
+        self.fly_list = arcade.SpriteList()
+        self.obstacle_list = arcade.SpriteList()
+        self.score = 0
+
+        self.frogger_x = 50
+        self.frogger_y = 50
+        self.hop = False
+
+        self.frogger_default_sprite = arcade.Sprite("Frogger/frogger_default.png", center_x= 300, center_y= 80)
         self.frogger_about_to_jump_sprite = arcade.Sprite("Frogger/frogger_about_to_jump.png")
         self.frogger_start_jump_sprite = arcade.Sprite("Frogger/frogger_start_jump.png")
         self.frogger_landing_sprite = arcade.Sprite("Frogger/frogger_landing.png")
@@ -22,77 +45,124 @@ class GameWindow(arcade.Window):
         self.frogger_peak_jump_sprite = arcade.Sprite("Frogger/frogger_peak_jump.png")
         self.roadkill_sprite = arcade.Sprite("Frogger/Roadkill.png")
 
-        self.fly_sprite = arcade.Sprite("fly/fly.png", center_x= 550, center_y =500)
-        self.bigrig_sprite = arcade.Sprite("obstacles/bigrig.png", center_x= 300, center_y= 600)
+        # Add frogger sprites to the list
+        self.frogger_list.append(self.frogger_default_sprite)
+        self.frogger_list.append(self.roadkill_sprite)
+        # Create bigrig sprite and add to the obstacle list
+        self.bigrig_sprite = Movers("obstacles/bigrig.png")
+        self.obstacle_list.append(self.bigrig_sprite)
+        self.bigrig_sprite.reset_pos()  # Call reset_pos to set initial position
+
+        # Create and position the fly sprites
+        for _ in range(FLY_COUNT):
+            fly_sprite = arcade.Sprite("fly/fly.png", center_x=random.randrange(SCREEN_WIDTH),
+                                       center_y=random.randrange(SCREEN_HEIGHT))
+            self.fly_list.append(fly_sprite)
 
         self.right = False
         self.left = False
         self.up = False
         self.down = False
+        self.frogger_default_sprite.angle = 0
+        self.frogger_direction = "right"
+
+        self.game_over = False
 
     def on_draw(self):
         arcade.start_render()
+
+        arcade.draw_rectangle_filled(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 9, SCREEN_WIDTH, SCREEN_HEIGHT // 5, arcade.color.FERN_GREEN)
+
+        # Draw horizontal lanes
+        for i in range(4):
+            y = (i + 1) * SCREEN_HEIGHT // 5
+            arcade.draw_line(0, y, SCREEN_WIDTH, y, arcade.color.WHITE, 5)
+
+            # Draw double yellow line between two lanes
+        for i in range(1, 4):
+            y = i * SCREEN_HEIGHT // 5
+            arcade.draw_line(0, y, SCREEN_WIDTH, y, arcade.color.YELLOW, 3)
+            arcade.draw_line(0, y + 3, SCREEN_WIDTH, y + 3, arcade.color.YELLOW, 3)
+
+        # Draw sprites and UI elements
         self.frogger_default_sprite.draw()
-        self.fly_sprite.draw()
-        arcade.draw_rectangle_filled(self.vehicle_x, self.vehicle_y, 75, 25, arcade.color.RED)
+        self.roadkill_sprite.draw()
+        self.fly_list.draw()
+        self.obstacle_list.draw()
+
+        arcade.draw_rectangle_filled(SCREEN_WIDTH // 2, 20, SCREEN_WIDTH, 40, arcade.color.ALMOND)
+
+        output = f"Score: {self.score}"
+        arcade.draw_text(text=output, start_x=10, start_y=20, color=arcade.color.BLUE_VIOLET, font_size=20)
+
+        if self.game_over:
+            arcade.draw_text("Game Over. Try again? (Y/N)", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, arcade.color.WHITE,
+                             font_size=24, anchor_x="center", anchor_y="center")
 
     def on_update(self, delta_time):
-        if self.right:
-            self.frogger_default_sprite.turn_right(2)
-            self.frogger_x += 5
-        if self.left:
-            self.frogger_default_sprite.turn_left(2)
-            self.frogger_x -= 5
-        if self.up:
-            self.frogger_y += 5
-        if self.down:
-            self.frogger_y -= 5
-        self.frogger_default_sprite.set_position(self.frogger_x, self.frogger_y)
+        if not self.game_over:
+            if self.frogger_x > 600 - 50:
+                self.frogger_x = 550
+            if self.frogger_x < 0 + 50:
+                self.frogger_x = 50
+            if self.frogger_y > 800 - 50:
+                self.frogger_y = 750
+            if self.frogger_y < 0 + 50:
+                self.frogger_y = 50
+            if self.frogger_direction == "right":
+                self.frogger_default_sprite.angle = 0
+            elif self.frogger_direction == "left":
+                self.frogger_default_sprite.angle = 180
+            self.frogger_default_sprite.set_position(self.frogger_x, self.frogger_y)
 
-        self.vehicle_x -= self.vehicle_x * delta_time
-        self.vehicle_y -= self.vehicle_y * delta_time
+            self.obstacle_list.update()
+            self.bigrig_sprite.move()
+
+            # Check for collision with bigrig
+            if self.bigrig_sprite.collide_with_sprite(self.frogger_default_sprite):
+                self.game_over = True
+                self.frogger_default_sprite = arcade.Sprite("Frogger/Roadkill.png")
+
+    def reset_frogger_position(self):
+        # Reset frogger position to starting position
+        self.frogger_x = 50
+        self.frogger_y = 50
+
+    def restart_game(self):
+        # Reset game variables
+        self.score = 0
+        self.game_over = False
+        self.reset_frogger_position()
 
     def on_key_press(self, symbol, modifiers):
-        if symbol == arcade.key.RIGHT:
-            self.right = True
-        if symbol == arcade.key.LEFT:
-            self.left = True
-        if symbol == arcade.key.UP:
-            self.up = True
-        if symbol == arcade.key.DOWN:
-            self.down = True
+        if not self.game_over:
+            if symbol == arcade.key.RIGHT:
+                self.hop = True
+                self.frogger_x += HOP_DISTANCE
+            if symbol == arcade.key.LEFT:
+                self.hop = True
+                self.frogger_x -= HOP_DISTANCE
+            if symbol == arcade.key.UP:
+                self.hop = True
+                self.frogger_y += HOP_DISTANCE
+            if symbol == arcade.key.DOWN:
+                self.hop = True
+                self.frogger_y -= HOP_DISTANCE
+        else:
+            if symbol == arcade.key.Y:
+                self.restart_game()
 
-    def on_key_release(self, symbol, modifiers):
-        if symbol == arcade.key.RIGHT:
-            self.right = False
-        if symbol == arcade.key.LEFT:
-            self.left = False
-        if symbol == arcade.key.UP:
-            self.up = False
-        if symbol == arcade.key.DOWN:
-            self.down = False
+    def on_key_release(self, symbol):
+        self.hop = False
 
-class Lane:
- def __init__(self, row=-1, lanetype="none", direction=0, speed=0, width=0, maxnumber=0, replenish=0, length=0, gap=0):
-  self.row = row
-  self.type = lanetype
-  self.direction = direction
-  self.speed = speed
-  self.width = width
-  self.maxnumber = maxnumber
-  self.replenish = replenish
-  self.length = length
-  self.gap = gap
-  self.lanelastupdate = 0
-  self.objects = []
+    def update(self, delta_time):
+        if not self.game_over:
+            self.fly_list.update()
+            fly_hit_list = arcade.check_for_collision_with_list(self.frogger_default_sprite, self.fly_list)
 
-class Sprite():
-    def __init__(self, x, y, width, height, image):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.image = image
+            for fly in fly_hit_list:
+                fly.remove_from_sprite_lists()
+                self.score += 10
 
 
 GameWindow(600, 800, "FROGGER CLONE")
