@@ -85,10 +85,9 @@ class GameWindow(arcade.Window):
             arcade.draw_line(0, y + 3, SCREEN_WIDTH, y + 3, arcade.color.YELLOW, 3)
 
         # Draw sprites and UI elements
-        self.frogger_default_sprite.draw()
-        self.roadkill_sprite.draw()
         self.fly_list.draw()
         self.obstacle_list.draw()
+        self.frogger_default_sprite.draw()
 
         arcade.draw_rectangle_filled(SCREEN_WIDTH // 2, 20, SCREEN_WIDTH, 40, arcade.color.ALMOND)
 
@@ -98,6 +97,9 @@ class GameWindow(arcade.Window):
         if self.game_over:
             arcade.draw_text("Game Over. Try again? (Y/N)", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, arcade.color.WHITE,
                              font_size=24, anchor_x="center", anchor_y="center")
+
+            # Draw roadkill sprite on top if game over
+            self.roadkill_sprite.draw()
 
     def on_update(self, delta_time):
         if not self.game_over:
@@ -121,7 +123,10 @@ class GameWindow(arcade.Window):
             # Check for collision with bigrig
             if self.bigrig_sprite.collide_with_sprite(self.frogger_default_sprite):
                 self.game_over = True
-                self.frogger_default_sprite = arcade.Sprite("Frogger/Roadkill.png")
+                # Set roadkill sprite position to Frogger's position
+                self.roadkill_sprite.set_position(self.frogger_x, self.frogger_y)
+                # Reset frogger sprite to default on collision
+                self.frogger_default_sprite = arcade.Sprite("Frogger/frogger_default.png")
 
     def reset_frogger_position(self):
         # Reset frogger position to starting position
@@ -133,6 +138,8 @@ class GameWindow(arcade.Window):
         self.score = 0
         self.game_over = False
         self.reset_frogger_position()
+        # Reset frogger sprite to default on restart
+        self.frogger_default_sprite = arcade.Sprite("Frogger/frogger_default.png")
 
     def on_key_press(self, symbol, modifiers):
         if not self.game_over:
@@ -153,17 +160,17 @@ class GameWindow(arcade.Window):
                 self.restart_game()
 
     def on_key_release(self, symbol):
-        self.hop = False
+                self.hop = False
 
     def update(self, delta_time):
-        if not self.game_over:
-            self.fly_list.update()
-            fly_hit_list = arcade.check_for_collision_with_list(self.frogger_default_sprite, self.fly_list)
+                if not self.game_over:
+                    self.fly_list.update()
+                    fly_hit_list = arcade.check_for_collision_with_list(self.frogger_default_sprite, self.fly_list)
 
-            for fly in fly_hit_list:
-                fly.remove_from_sprite_lists()
-                self.score += 10
-
+                    for fly in fly_hit_list:
+                        fly.remove_from_sprite_lists()
+                        self.score += 10
 
 GameWindow(600, 800, "FROGGER CLONE")
 arcade.run()
+
