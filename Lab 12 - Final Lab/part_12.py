@@ -1,4 +1,4 @@
- arcade
+import arcade
 import random
 
 SCREEN_HEIGHT = 800
