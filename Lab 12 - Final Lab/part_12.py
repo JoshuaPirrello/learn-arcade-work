@@ -1,4 +1,4 @@
-import arcade
+ arcade
 import random
 
 SCREEN_HEIGHT = 800
@@ -6,6 +6,8 @@ SCREEN_WIDTH = 600
 HOP_DISTANCE = 50
 FLY_COUNT = 2
 
+DEFAULT_SPEED = 10
+speed_multiplier = 1.0
 
 class Movers(arcade.Sprite):
     def reset_pos(self):
@@ -13,7 +15,7 @@ class Movers(arcade.Sprite):
         self.center_x = -self.width / 2
 
     def move(self):
-        self.center_x += 10
+        self.center_x += DEFAULT_SPEED * speed_multiplier
         if self.right > SCREEN_WIDTH + self.width:
             self.reset_pos()
 
@@ -31,11 +33,9 @@ class Bluvers(arcade.Sprite):
         self.center_x = SCREEN_WIDTH + self.width / 2
 
     def move(self):
-        self.center_x -= 10
+        self.center_x -= DEFAULT_SPEED * speed_multiplier
         if self.left < -self.width:
             self.reset_pos()
-
-
 
     def collide_with_sprite(self, sprite):
         return self.collides_with_sprite(sprite)
@@ -131,6 +131,7 @@ class GameWindow(arcade.Window):
                              font_size=36, anchor_x="center", anchor_y="center")
 
     def on_update(self, delta_time):
+        global speed_multiplier
         if not self.game_over:
             if self.frogger_x > 600 - 50:
                 self.frogger_x = 550
@@ -150,7 +151,6 @@ class GameWindow(arcade.Window):
             self.bigrig_sprite.move()
             self.bluecar_sprite.move()
 
-
             if self.bigrig_sprite.collide_with_sprite(self.frogger_default_sprite):
                 self.game_over = True
                 self.roadkill_sprite.set_position(self.frogger_x, self.frogger_y)
@@ -169,6 +169,7 @@ class GameWindow(arcade.Window):
                     self.goal_timer = 0
                     self.reset_frogger_position()
                     self.score += 1000
+                    speed_multiplier *= 1.1
 
     def reset_frogger_position(self):
         self.frogger_x = 50
@@ -180,7 +181,9 @@ class GameWindow(arcade.Window):
         self.reset_frogger_position()
         self.frogger_default_sprite = arcade.Sprite("Frogger/frogger_default.png")
 
-      
+        global speed_multiplier
+        speed_multiplier = 1.0
+
         self.obstacle_list = arcade.SpriteList()
         self.bigrig_sprite = Movers("obstacles/bigrig.png")
         self.obstacle_list.append(self.bigrig_sprite)
