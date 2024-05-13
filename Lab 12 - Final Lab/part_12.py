@@ -171,6 +171,14 @@ class GameWindow(arcade.Window):
                     self.score += 1000
                     speed_multiplier *= 1.1
 
+                    # Respawn flies when goal is reached
+                    self.fly_list = arcade.SpriteList()
+                    for _ in range(FLY_COUNT):
+                        fly_sprite = arcade.Sprite("fly/fly.png", scale=0.65,
+                                                   center_x=random.randrange(SCREEN_WIDTH),
+                                                   center_y=random.randrange(SCREEN_HEIGHT))
+                        self.fly_list.append(fly_sprite)
+
     def reset_frogger_position(self):
         self.frogger_x = 50
         self.frogger_y = 50
@@ -193,6 +201,8 @@ class GameWindow(arcade.Window):
         self.bluecar_sprite.reset_pos()
 
         self.fly_list = arcade.SpriteList()
+
+
         for _ in range(FLY_COUNT):
             fly_sprite = arcade.Sprite("fly/fly.png", scale=0.65, center_x=random.randrange(SCREEN_WIDTH),
                                        center_y=random.randrange(SCREEN_HEIGHT))
