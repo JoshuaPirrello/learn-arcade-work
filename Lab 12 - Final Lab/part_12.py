@@ -52,6 +52,7 @@ class GameWindow(arcade.Window):
         self.fly_list = arcade.SpriteList()
         self.obstacle_list = arcade.SpriteList()
         self.score = 0
+        self.highest_score = 0  
 
         self.frogger_x = 50
         self.frogger_y = 50
@@ -104,7 +105,7 @@ class GameWindow(arcade.Window):
         arcade.draw_rectangle_filled(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 9, SCREEN_WIDTH, SCREEN_HEIGHT // 5,
                                      arcade.color.FERN_GREEN)
 
-        # Adjusted coordinates to make the brown rectangle touch the yellow line below it
+    
         arcade.draw_line(0, SCREEN_HEIGHT - 200, SCREEN_WIDTH, SCREEN_HEIGHT - 200, arcade.color.WHITE, 5)
 
         for i in range(1, 4):
@@ -119,6 +120,9 @@ class GameWindow(arcade.Window):
 
         output = f"Score: {self.score}"
         arcade.draw_text(text=output, start_x=10, start_y=20, color=arcade.color.BLUE_VIOLET, font_size=20)
+
+        arcade.draw_text(f"Highest Score: {self.highest_score}", SCREEN_WIDTH - 10, 20, arcade.color.RED,
+                         font_size=20, anchor_x="right")
 
         if self.game_over:
             arcade.draw_text("Game Over. Try again? (Y/N)", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, arcade.color.WHITE,
@@ -170,14 +174,15 @@ class GameWindow(arcade.Window):
                     self.reset_frogger_position()
                     self.score += 1000
                     speed_multiplier *= 1.1
-
-                    # Respawn flies when goal is reached
                     self.fly_list = arcade.SpriteList()
                     for _ in range(FLY_COUNT):
                         fly_sprite = arcade.Sprite("fly/fly.png", scale=0.65,
                                                    center_x=random.randrange(SCREEN_WIDTH),
                                                    center_y=random.randrange(SCREEN_HEIGHT))
                         self.fly_list.append(fly_sprite)
+
+            if self.score > self.highest_score:
+                self.highest_score = self.score
 
     def reset_frogger_position(self):
         self.frogger_x = 50
@@ -214,24 +219,20 @@ class GameWindow(arcade.Window):
     def on_key_press(self, symbol, modifiers):
         if not self.game_over:
             if symbol == arcade.key.RIGHT:
-                self.hop = True
                 self.frogger_x += HOP_DISTANCE
             elif symbol == arcade.key.LEFT:
-                self.hop = True
                 self.frogger_x -= HOP_DISTANCE
             elif symbol == arcade.key.UP:
-                self.hop = True
                 self.frogger_y += HOP_DISTANCE
                 self.score += 10
             elif symbol == arcade.key.DOWN:
-                self.hop = True
                 self.frogger_y -= HOP_DISTANCE
         else:
             if symbol == arcade.key.Y:
                 self.restart_game()
 
     def on_key_release(self, symbol):
-        self.hop = False
+        pass
 
     def update(self, delta_time):
         if not self.game_over:
