@@ -99,13 +99,13 @@ class GameWindow(arcade.Window):
     def on_draw(self):
         arcade.start_render()
 
-        arcade.draw_rectangle_filled(SCREEN_WIDTH // 2, (4.5 / 5) * SCREEN_HEIGHT, SCREEN_WIDTH,
-                                     (1.5 / 5) * SCREEN_HEIGHT, arcade.color.BLUE)
-
         arcade.draw_rectangle_filled(SCREEN_WIDTH // 2, SCREEN_HEIGHT, SCREEN_WIDTH, 100, arcade.color.FERN_GREEN)
-
+        arcade.draw_rectangle_filled(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 200, SCREEN_WIDTH, 230, arcade.color.DIRT)
         arcade.draw_rectangle_filled(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 9, SCREEN_WIDTH, SCREEN_HEIGHT // 5,
                                      arcade.color.FERN_GREEN)
+
+        # Adjusted coordinates to make the brown rectangle touch the yellow line below it
+        arcade.draw_line(0, SCREEN_HEIGHT - 200, SCREEN_WIDTH, SCREEN_HEIGHT - 200, arcade.color.WHITE, 5)
 
         for i in range(1, 4):
             y = i * SCREEN_HEIGHT // 5
