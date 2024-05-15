@@ -10,13 +10,32 @@ DEFAULT_SPEED = 10
 speed_multiplier = 1.0
 
 class Movers(arcade.Sprite):
+    MOVERS_SPEED = DEFAULT_SPEED * 0.76  # Moves 24% slower than the default speed
+
     def reset_pos(self):
         self.center_y = SCREEN_HEIGHT // 2 - 10
         self.center_x = -self.width / 2
 
     def move(self):
-        self.center_x += DEFAULT_SPEED * speed_multiplier
+        self.center_x += self.MOVERS_SPEED * speed_multiplier
         if self.right > SCREEN_WIDTH + self.width:
+            self.reset_pos()
+
+    def collide_with_sprite(self, sprite):
+        return self.collides_with_sprite(sprite)
+
+class Firetruck(arcade.Sprite):
+    FIRETRUCK_SPEED = DEFAULT_SPEED * 0.75 / 2  # 25% slower than other obstacles
+
+    def reset_pos(self):
+        # Set initial position near the bottom of the screen on the brown road
+        self.center_y = SCREEN_HEIGHT - 252  # Adjusted to move it down by 12 pixels
+        self.center_x = -self.width / 2
+
+    def move(self):
+        # Make the firetruck move from left to right
+        self.center_x += self.FIRETRUCK_SPEED * speed_multiplier
+        if self.left > SCREEN_WIDTH:
             self.reset_pos()
 
     def collide_with_sprite(self, sprite):
@@ -29,14 +48,13 @@ class Bluvers(arcade.Sprite):
         self.reset_pos()
 
     def reset_pos(self):
-        self.center_y = SCREEN_HEIGHT // 2 - 150
+        self.center_y = SCREEN_HEIGHT - 150
         self.center_x = SCREEN_WIDTH + self.width / 2
 
     def move(self):
         self.center_x -= DEFAULT_SPEED * speed_multiplier
         if self.left < -self.width:
             self.reset_pos()
-
     def collide_with_sprite(self, sprite):
         return self.collides_with_sprite(sprite)
 
@@ -52,7 +70,7 @@ class GameWindow(arcade.Window):
         self.fly_list = arcade.SpriteList()
         self.obstacle_list = arcade.SpriteList()
         self.score = 0
-        self.highest_score = 0  
+        self.highest_score = 0  # Variable to store the highest score
 
         self.frogger_x = 50
         self.frogger_y = 50
@@ -77,8 +95,17 @@ class GameWindow(arcade.Window):
         self.obstacle_list.append(self.bigrig_sprite)
         self.bigrig_sprite.reset_pos()
 
-        self.bluecar_sprite = Bluvers("obstacles/blue_car.png")
-        self.obstacle_list.append(self.bluecar_sprite)
+        self.firetruck_sprite = Firetruck("obstacles/firetruck.png")
+        self.obstacle_list.append(self.firetruck_sprite)  # Add this line
+        self.firetruck_sprite.reset_pos()
+
+        self.bluvers_sprite1 = Bluvers("obstacles/blue_car.png")
+        self.bluvers_sprite1.reset_pos()
+        self.obstacle_list.append(self.bluvers_sprite1)
+
+        self.bluvers_sprite2 = Bluvers("obstacles/blue_car.png")
+        self.bluvers_sprite2.center_y = SCREEN_HEIGHT - 150
+        self.obstacle_list.append(self.bluvers_sprite2)
 
         for _ in range(FLY_COUNT):
             fly_sprite = arcade.Sprite("fly/fly.png", scale=0.65, center_x=random.randrange(SCREEN_WIDTH),
@@ -97,6 +124,8 @@ class GameWindow(arcade.Window):
         self.goal_reached = False
         self.goal_timer = 0
 
+        self.in_goal_zone = False
+
     def on_draw(self):
         arcade.start_render()
 
@@ -105,7 +134,6 @@ class GameWindow(arcade.Window):
         arcade.draw_rectangle_filled(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 9, SCREEN_WIDTH, SCREEN_HEIGHT // 5,
                                      arcade.color.FERN_GREEN)
 
-    
         arcade.draw_line(0, SCREEN_HEIGHT - 200, SCREEN_WIDTH, SCREEN_HEIGHT - 200, arcade.color.WHITE, 5)
 
         for i in range(1, 4):
@@ -153,19 +181,33 @@ class GameWindow(arcade.Window):
 
             self.obstacle_list.update()
             self.bigrig_sprite.move()
-            self.bluecar_sprite.move()
+            self.bluvers_sprite1.move()
+            self.bluvers_sprite2.move()
+            self.firetruck_sprite.move()
 
-            if self.bigrig_sprite.collide_with_sprite(self.frogger_default_sprite):
-                self.game_over = True
-                self.roadkill_sprite.set_position(self.frogger_x, self.frogger_y)
-                self.frogger_default_sprite = arcade.Sprite("Frogger/frogger_default.png")
+            if not self.in_goal_zone:
+                if self.bigrig_sprite.collide_with_sprite(self.frogger_default_sprite):
+                    self.game_over = True
+                    self.roadkill_sprite.set_position(self.frogger_x, self.frogger_y)
+                    self.frogger_default_sprite = arcade.Sprite("Frogger/frogger_default.png")
 
-            if self.bluecar_sprite.collide_with_sprite(self.frogger_default_sprite):
-                self.game_over = True
-                self.roadkill_sprite.set_position(self.frogger_x, self.frogger_y)
-                self.frogger_default_sprite = arcade.Sprite("Frogger/frogger_default.png")
+                if self.firetruck_sprite.collide_with_sprite(self.frogger_default_sprite):
+                    self.game_over = True
+                    self.roadkill_sprite.set_position(self.frogger_x, self.frogger_y)
+                    self.frogger_default_sprite = arcade.Sprite("Frogger/frogger_default.png")
+
+                if self.bluvers_sprite1.collide_with_sprite(self.frogger_default_sprite):
+                    self.game_over = True
+                    self.roadkill_sprite.set_position(self.frogger_x, self.frogger_y)
+                    self.frogger_default_sprite = arcade.Sprite("Frogger/frogger_default.png")
+
+                if self.bluvers_sprite2.collide_with_sprite(self.frogger_default_sprite):
+                    self.game_over = True
+                    self.roadkill_sprite.set_position(self.frogger_x, self.frogger_y)
+                    self.frogger_default_sprite = arcade.Sprite("Frogger/frogger_default.png")
 
             if self.frogger_y >= (4.5 / 5) * SCREEN_HEIGHT:
+                self.in_goal_zone = True
                 self.goal_reached = True
                 self.goal_timer += delta_time
                 if self.goal_timer >= 1:
@@ -174,6 +216,7 @@ class GameWindow(arcade.Window):
                     self.reset_frogger_position()
                     self.score += 1000
                     speed_multiplier *= 1.1
+
                     self.fly_list = arcade.SpriteList()
                     for _ in range(FLY_COUNT):
                         fly_sprite = arcade.Sprite("fly/fly.png", scale=0.65,
@@ -185,8 +228,8 @@ class GameWindow(arcade.Window):
                 self.highest_score = self.score
 
     def reset_frogger_position(self):
-        self.frogger_x = 50
-        self.frogger_y = 50
+        self.frogger_x = SCREEN_WIDTH // 2
+        self.frogger_y = SCREEN_HEIGHT // 9 + 40  # Adjusted to start slightly above the brown rectangle
 
     def restart_game(self):
         self.score = 0
@@ -201,12 +244,17 @@ class GameWindow(arcade.Window):
         self.bigrig_sprite = Movers("obstacles/bigrig.png")
         self.obstacle_list.append(self.bigrig_sprite)
         self.bigrig_sprite.reset_pos()
-        self.bluecar_sprite = Bluvers("obstacles/blue_car.png")
-        self.obstacle_list.append(self.bluecar_sprite)
-        self.bluecar_sprite.reset_pos()
+        self.obstacle_list.append(self.bluvers_sprite1)
+        self.bluvers_sprite1.reset_pos()
+        self.obstacle_list.append(self.bluvers_sprite2)
+        self.bluvers_sprite2.reset_pos()
+
+        self.bluvers_sprite2.reset_pos()
+        self.obstacle_list.append(self.firetruck_sprite)
+
+        self.firetruck_sprite.reset_pos()
 
         self.fly_list = arcade.SpriteList()
-
 
         for _ in range(FLY_COUNT):
             fly_sprite = arcade.Sprite("fly/fly.png", scale=0.65, center_x=random.randrange(SCREEN_WIDTH),
@@ -215,6 +263,7 @@ class GameWindow(arcade.Window):
 
         self.goal_reached = False
         self.goal_timer = 0
+        self.in_goal_zone = False
 
     def on_key_press(self, symbol, modifiers):
         if not self.game_over:
