@@ -10,8 +10,7 @@ DEFAULT_SPEED = 10
 speed_multiplier = 1.0
 
 class Movers(arcade.Sprite):
-    MOVERS_SPEED = DEFAULT_SPEED * 0.76  # Moves 24% slower than the default speed
-
+    MOVERS_SPEED = DEFAULT_SPEED * 0.76  
     def reset_pos(self):
         self.center_y = SCREEN_HEIGHT // 2 - 10
         self.center_x = -self.width / 2
@@ -25,15 +24,13 @@ class Movers(arcade.Sprite):
         return self.collides_with_sprite(sprite)
 
 class Firetruck(arcade.Sprite):
-    FIRETRUCK_SPEED = DEFAULT_SPEED * 0.75 / 2  # 25% slower than other obstacles
-
+    FIRETRUCK_SPEED = DEFAULT_SPEED * 0.75 / 2  
     def reset_pos(self):
-        # Set initial position near the bottom of the screen on the brown road
-        self.center_y = SCREEN_HEIGHT - 252  # Adjusted to move it down by 12 pixels
+       
+        self.center_y = SCREEN_HEIGHT - 252  
         self.center_x = -self.width / 2
 
     def move(self):
-        # Make the firetruck move from left to right
         self.center_x += self.FIRETRUCK_SPEED * speed_multiplier
         if self.left > SCREEN_WIDTH:
             self.reset_pos()
@@ -70,7 +67,7 @@ class GameWindow(arcade.Window):
         self.fly_list = arcade.SpriteList()
         self.obstacle_list = arcade.SpriteList()
         self.score = 0
-        self.highest_score = 0  # Variable to store the highest score
+        self.highest_score = 0 
 
         self.frogger_x = 50
         self.frogger_y = 50
@@ -96,7 +93,7 @@ class GameWindow(arcade.Window):
         self.bigrig_sprite.reset_pos()
 
         self.firetruck_sprite = Firetruck("obstacles/firetruck.png")
-        self.obstacle_list.append(self.firetruck_sprite)  # Add this line
+        self.obstacle_list.append(self.firetruck_sprite)  
         self.firetruck_sprite.reset_pos()
 
         self.bluvers_sprite1 = Bluvers("obstacles/blue_car.png")
@@ -229,8 +226,7 @@ class GameWindow(arcade.Window):
 
     def reset_frogger_position(self):
         self.frogger_x = SCREEN_WIDTH // 2
-        self.frogger_y = SCREEN_HEIGHT // 9 + 40  # Adjusted to start slightly above the brown rectangle
-
+        self.frogger_y = SCREEN_HEIGHT // 9 + 40  
     def restart_game(self):
         self.score = 0
         self.game_over = False
